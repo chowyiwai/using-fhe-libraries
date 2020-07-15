@@ -1,0 +1,23 @@
+# depslib dependency file v1.0
+1594787623 source:c:\users\yiwai\source\repos\using-palisade\main.cpp
+	<chrono>
+	<fstream>
+	<iostream>
+	<iterator>
+	<pke\palisade.h>
+	<pke\cryptocontextgen.h>
+	<typeinfo>
+	<core\palisadecore.h>
+	<math.h>
+
+1594793939 source:c:\users\yiwai\source\repos\using-palisade\src\main.cpp
+	<chrono>
+	<fstream>
+	<iostream>
+	<iterator>
+	<pke\palisade.h>
+	<pke\cryptocontextgen.h>
+	<typeinfo>
+	<core\palisadecore.h>
+	<math.h>
+
