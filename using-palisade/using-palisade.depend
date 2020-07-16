@@ -21,3 +21,60 @@
 	<core\palisadecore.h>
 	<math.h>
 
+1594884851 source:c:\users\yiwai\documents\using-fhe-libraries\using-palisade\src\main.cpp
+	<chrono>
+	<fstream>
+	<iostream>
+	<iterator>
+	<pke\palisade.h>
+	<pke\cryptocontextgen.h>
+	<typeinfo>
+	<core\palisadecore.h>
+	<math.h>
+	"params.h"
+	"paramsrunner.h"
+
+1594873041 source:c:\users\yiwai\documents\using-fhe-libraries\using-palisade\src\distancecomputer.cpp
+	"DistanceComputer.h"
+	<iostream>
+	<palisade.h>
+
+1594881963 c:\users\yiwai\documents\using-fhe-libraries\using-palisade\include\distancecomputer.h
+	<iostream>
+	<vector>
+	<palisade.h>
+
+1594884779 source:c:\users\yiwai\documents\using-fhe-libraries\using-palisade\src\params.cpp
+	"params.h"
+	<palisade.h>
+
+1594884791 c:\users\yiwai\documents\using-fhe-libraries\using-palisade\include\params.h
+	<palisade.h>
+	<cryptocontextgen.h>
+
+1594868686 source:c:\users\yiwai\documents\using-fhe-libraries\using-palisade\src\paramsrunner.cpp
+	"paramsrunner.h"
+	"distancecomputer.h"
+	<palisade.h>
+
+1594875329 c:\users\yiwai\documents\using-fhe-libraries\using-palisade\include\paramsrunner.h
+	<palisade.h>
+	"distancecomputer.h"
+
+1594805903 source:c:\users\yiwai\documents\using-fhe-libraries\using-palisade\include\distancecomputer.h
+	<iostream>
+	<vector>
+
+1594806910 source:c:\users\yiwai\documents\using-fhe-libraries\using-palisade\include\params.h
+	<palisade.h>
+
+1594864404 source:c:\users\yiwai\documents\using-fhe-libraries\using-palisade\include\paramsrunner.h
+	<palisade.h>
+
+1594874391 c:\users\yiwai\documents\using-fhe-libraries\using-palisade\include\palisadedistancecomputer.h
+	"distancecomputer.h"
+	<palisade.h>
+
+1594873038 source:c:\users\yiwai\documents\using-fhe-libraries\using-palisade\src\palisadedistancecomputer.cpp
+	"PalisadeDistanceCOmputer.h"
+
