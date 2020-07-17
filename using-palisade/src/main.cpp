@@ -19,11 +19,11 @@ void runCKKS1(complex<double> x1, complex<double> y1, complex<double> x2, comple
 
     cout << "|| Generating CryptoContext for (1) CKKS ||" << endl;
 
-    usint cyclOrder = 131072;
-    usint numPrimes = 1;
-    usint scaleExp = 57;
-    usint relinWindow = 10;
-    usint batchSize = 5;
+    int64_t cyclOrder = 131072;
+    int64_t numPrimes = 1;
+    int64_t scaleExp = 57;
+    int64_t relinWindow = 10;
+    int64_t batchSize = 5;
 
     CryptoContext<DCRTPoly> cryptoContext = GenCryptoContextCKKS<DCRTPoly>(cyclOrder, numPrimes, scaleExp, relinWindow, batchSize, RLWE, BV, APPROXRESCALE);
 
@@ -62,11 +62,11 @@ void runCKKS3(complex<double> x1, complex<double> y1, complex<double> x2, comple
 
     cout << "|| Generating CryptoContext for (3) CKKS ||" << endl;
 
-    usint cyclOrder = 2097152;
-    usint numPrimes = 1;
-    usint scaleExp = 47;
-    usint relinWindow = 10;
-    usint batchSize = 5;
+    int64_t cyclOrder = 2097152;
+    int64_t numPrimes = 1;
+    int64_t scaleExp = 47;
+    int64_t relinWindow = 10;
+    int64_t batchSize = 5;
 
     CryptoContext<DCRTPoly> cryptoContext = GenCryptoContextCKKS<DCRTPoly>(cyclOrder, numPrimes, scaleExp, relinWindow, batchSize, RLWE, BV, APPROXRESCALE);
 
@@ -82,11 +82,11 @@ void runCKKS7(complex<double> x1, complex<double> y1, complex<double> x2, comple
 
     cout << "|| Generating CryptoContext for (7) CKKS ||" << endl;
 
-    usint cyclOrder = 2097152;
-    usint numPrimes = 2;
-    usint scaleExp = 47;
-    usint relinWindow = 10;
-    usint batchSize = 5;
+    int64_t cyclOrder = 2097152;
+    int64_t numPrimes = 2;
+    int64_t scaleExp = 47;
+    int64_t relinWindow = 10;
+    int64_t batchSize = 5;
 
     CryptoContext<DCRTPoly> cryptoContext = GenCryptoContextCKKS<DCRTPoly>(cyclOrder, numPrimes, scaleExp, relinWindow, batchSize, RLWE, BV, APPROXRESCALE);
 
@@ -102,11 +102,11 @@ void runCKKS8(complex<double> x1, complex<double> y1, complex<double> x2, comple
 
     cout << "|| Generating CryptoContext for (8) CKKS ||" << endl;
 
-    usint cyclOrder = 256;
-    usint numPrimes = 2;
-    usint scaleExp = 52;
-    usint relinWindow = 10;
-    usint batchSize = 5;
+    int64_t cyclOrder = 256;
+    int64_t numPrimes = 2;
+    int64_t scaleExp = 52;
+    int64_t relinWindow = 10;
+    int64_t batchSize = 5;
 
     CryptoContext<DCRTPoly> cryptoContext = GenCryptoContextCKKS<DCRTPoly>(cyclOrder, numPrimes, scaleExp, relinWindow, batchSize, RLWE, BV, APPROXRESCALE);
 
@@ -134,8 +134,10 @@ void printHeader(string schemeName, string setNumber) {
     cout << border << "\n" << endl;
 }
 
-template<class ParamType, class Element>
-void run(int64_t x1, int64_t y1, int64_t x2, int64_t y2, map<int, ParamType> paramSet, string schemeName) {
+template<class ParamType, class Element, typename T>
+void run(T x1, T y1, T x2, T y2, map<int, ParamType> paramSet, string schemeName,
+         ParamsRunner<Element, T> *paramsRunner) {
+
     typename map<int, ParamType>::iterator iter;
 
     for (iter = paramSet.begin(); iter != paramSet.end(); iter++) {
@@ -146,8 +148,15 @@ void run(int64_t x1, int64_t y1, int64_t x2, int64_t y2, map<int, ParamType> par
         double start = currentDateTime();
 
         auto cryptoContext = value.generateCryptoContext();
-        ParamsRunner<Element, int64_t> paramsRunner;
-        paramsRunner.run(x1, y1, x2, y2, cryptoContext);
+
+        CKKSParamsRunner<Element>* ckksParamsRunner = dynamic_cast<CKKSParamsRunner<Element>*>(paramsRunner);
+
+        if (ckksParamsRunner != nullptr) {
+            ckksParamsRunner->run(x1, y1, x2, y2, cryptoContext);
+        } else {
+            paramsRunner->run(x1, y1, x2, y2, cryptoContext);
+
+        }
 
         double finish = currentDateTime();
         double diff = finish - start;
@@ -157,12 +166,20 @@ void run(int64_t x1, int64_t y1, int64_t x2, int64_t y2, map<int, ParamType> par
 
 void runBGVrns(int64_t x1, int64_t y1, int64_t x2, int64_t y2) {
     string schemeName = "BGVrns";
-    run<BgvRnsParam, DCRTPoly>(x1, y1, x2, y2, BgvRnsParam::ParamSets, schemeName);
+    ParamsRunner<DCRTPoly, int64_t> paramsRunner;
+    run<BGVrnsParam, DCRTPoly, int64_t>(x1, y1, x2, y2, BGVrnsParam::ParamSets, schemeName, &paramsRunner);
 }
 
 void runBGV(int64_t x1, int64_t y1, int64_t x2, int64_t y2) {
     string schemeName = "BGV";
-    run<BgvParam, Poly>(x1, y1, x2, y2, BgvParam::ParamSets, schemeName);
+    ParamsRunner<Poly, int64_t> paramsRunner;
+    run<BGVParam, Poly, int64_t>(x1, y1, x2, y2, BGVParam::ParamSets, schemeName, &paramsRunner);
+}
+
+void runCKKS(complex<double> x1, complex<double> y1, complex<double> x2, complex<double> y2) {
+    string schemeName = "CKKS";
+    CKKSParamsRunner<DCRTPoly> ckksParamsRunner;
+    run<CKKSParam, DCRTPoly, complex<double>>(x1, y1, x2, y2, CKKSParam::ParamSets, schemeName, &ckksParamsRunner);
 }
 
 int main()
@@ -182,14 +199,14 @@ int main()
     int64_t dsoYCoord = 103789;
 
     //runBGVrns(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord);
-    runBGV(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord);
+    //runBGV(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord);
 
     complex<double> stadiumXCoordDouble = 1.304;
     complex<double> stadiumYCoordDouble = 103.874;
     complex<double> dsoXCoordDouble = 1.290;
     complex<double> dsoYCoordDouble = 103.789;
 
-    //runCKKS(stadiumXCoordDouble, stadiumYCoordDouble, dsoXCoordDouble, dsoYCoordDouble);
+    runCKKS(stadiumXCoordDouble, stadiumYCoordDouble, dsoXCoordDouble, dsoYCoordDouble);
 
     return 0;
 }

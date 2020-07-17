@@ -17,7 +17,7 @@ class ParamsRunner {
     protected:
         virtual Plaintext encodePlaintext(vector<T> coord, CryptoContext<Element> cc, string plaintextName);
         void printParameters(CryptoContext<Element> cryptoContext);
-        void printCoordinates(T x, T y, string xName, string yName);
+        virtual void printCoordinates(T x, T y, string xName, string yName);
         LPKeyPair<Element> generateKeys(CryptoContext<Element> cryptoContext);
         void decryptAndCheck(Ciphertext<Element> ct, Plaintext pt, LPPrivateKey<Element> secretKey, CryptoContext<Element> cryptoContext, string plaintextName);
         virtual void checkDecryption(Plaintext original, Plaintext decrypted);
@@ -26,6 +26,7 @@ class ParamsRunner {
 
 template<class Element, typename T>
 Plaintext ParamsRunner<Element, T>::encodePlaintext(vector<T> coord, CryptoContext<Element> cc, string plaintextName) {
+    cout << "in normal one" << endl;
     vector<int64_t>* typeCastedCoord;
     typeCastedCoord = (vector<int64_t>*) &coord;
     Plaintext plaintext = cc->MakeCoefPackedPlaintext(*typeCastedCoord);
@@ -37,8 +38,8 @@ template<class Element, typename T>
 void ParamsRunner<Element, T>::printParameters(CryptoContext<Element> cryptoContext) {
 
     // GET PARAMETER SET
-    usint p = cryptoContext->GetCryptoParameters()->GetPlaintextModulus();
-    usint n = cryptoContext->GetCryptoParameters()
+    int64_t p = cryptoContext->GetCryptoParameters()->GetPlaintextModulus();
+    int64_t n = cryptoContext->GetCryptoParameters()
                         ->GetElementParams()
                         ->GetCyclotomicOrder() / 2;
     auto q = cryptoContext->GetCryptoParameters()
@@ -159,24 +160,25 @@ void ParamsRunner<Element, T>::decryptAndCheck(Ciphertext<Element> ct, Plaintext
     checkDecryption(pt, decrypt);
 }
 
-template<class Element, typename T>
-class CKKSParamsRunner: ParamsRunner<complex<double>, Element> {
+template<class Element>
+class CKKSParamsRunner: public ParamsRunner<Element, complex<double>> {
 
-    Plaintext encodePlaintext(vector<complex<double>> coord, CryptoContext<Element> cc, string plaintextName) {
+    virtual Plaintext encodePlaintext(vector<complex<double>> coord, CryptoContext<Element> cc, string plaintextName) {
+        cout << "in ckks one" << endl;
         Plaintext plaintext;
         plaintext = cc->MakeCKKSPackedPlaintext(coord);
         cout << plaintextName << " Plaintext: " << plaintext << endl;
         return plaintext;
     }
 
-    void printCoordinates(complex<double> x, complex<double> y, string xName, string yName) {
+    virtual void printCoordinates(complex<double> x, complex<double> y, string xName, string yName) {
         cout << "(" << xName << ", " << yName << ") coordinates are: ";
         printf("(%f + %fi, ", real(x), imag(x));
         printf("%f + %fi) \n", real(y), imag(y));
     }
 
-    void checkDecryption(Plaintext original, Plaintext decrypted) {
-        cout << "Please check manually for CKKS due to approximation issues" << endl;
+    virtual void checkDecryption(Plaintext original, Plaintext decrypted) {
+        cout << "Please check correctness manually for CKKS" << endl;
     }
 
 };
