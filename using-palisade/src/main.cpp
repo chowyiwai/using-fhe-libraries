@@ -12,6 +12,26 @@ void printHeader(string schemeName, string setNumber) {
     cout << border << "\n" << endl;
 }
 
+template<class ParamType, class Element, typename T>
+void runDistComp(T x1, T y1, T x2, T y2, ParamType value,
+         ParamsRunner<Element, T> *paramsRunner) {
+
+    double start = currentDateTime();
+    auto cryptoContext = value.generateCryptoContext();
+
+    CKKSParamsRunner<Element>* ckksParamsRunner = dynamic_cast<CKKSParamsRunner<Element>*>(paramsRunner);
+
+    if (ckksParamsRunner != nullptr) {
+        ckksParamsRunner->runDistComp(x1, y1, x2, y2, cryptoContext);
+    } else {
+        paramsRunner->runDistComp(x1, y1, x2, y2, cryptoContext);
+    }
+
+    double finish = currentDateTime();
+    double diff = finish - start;
+    cout << "Total time taken: " << diff << "\n" <<  endl;
+}
+
 template <class ParamType, class Element, typename T>
 double computeDistCompAvgTime(T x1, T y1, T x2, T y2, ParamType value,
                       ParamsRunner<Element, T> *paramsRunner, int sampleNum) {
@@ -20,14 +40,7 @@ double computeDistCompAvgTime(T x1, T y1, T x2, T y2, ParamType value,
     streambuf *old = cout.rdbuf(0); // change cout's stream buffer to remove all the print statements when running
 
     for (int i = 0; i < sampleNum; i++) {
-        double start = currentDateTime();
-
-        auto cryptoContext = value.generateCryptoContext();
-        runDistComp(x1, y1, x2, y2, cryptoContext, paramsRunner);
-
-        double finish = currentDateTime();
-        double diff = finish - start;
-        totalTime += diff;
+        runDistComp(x1, y1, x2, y2, value, paramsRunner);
     }
 
     cout.rdbuf(old);
@@ -57,18 +70,6 @@ void runDistCompTimeCheck(T x1, T y1, T x2, T y2, map<int, ParamType> paramSets,
     }
 }
 
-template<class Element, typename T>
-void runDistComp(T x1, T y1, T x2, T y2, CryptoContext<Element> cryptoContext,
-         ParamsRunner<Element, T> *paramsRunner) {
-    CKKSParamsRunner<Element>* ckksParamsRunner = dynamic_cast<CKKSParamsRunner<Element>*>(paramsRunner);
-
-    if (ckksParamsRunner != nullptr) {
-        ckksParamsRunner->runDistComp(x1, y1, x2, y2, cryptoContext);
-    } else {
-        paramsRunner->runDistComp(x1, y1, x2, y2, cryptoContext);
-    }
-}
-
 template<class ParamType, class Element, typename T>
 void runDistComp(T x1, T y1, T x2, T y2, map<int, ParamType> paramSets, string schemeName,
          ParamsRunner<Element, T> *paramsRunner) {
@@ -80,14 +81,7 @@ void runDistComp(T x1, T y1, T x2, T y2, map<int, ParamType> paramSets, string s
         auto value = iter->second;
 
         printHeader(schemeName, to_string(key));
-        double start = currentDateTime();
-
-        auto cryptoContext = value.generateCryptoContext();
-        runDistComp(x1, y1, x2, y2, cryptoContext, paramsRunner);
-
-        double finish = currentDateTime();
-        double diff = finish - start;
-        cout << "Total time taken: " << diff << "\n" <<  endl;
+        runDistComp(x1, y1, x2, y2, value, paramsRunner);
     }
 }
 
@@ -96,7 +90,7 @@ void runDistCompBGVrns(int64_t x1, int64_t y1, int64_t x2, int64_t y2, bool isTi
     ParamsRunner<DCRTPoly, int64_t> paramsRunner;
     if (isTimeCheck) {
         runDistCompTimeCheck<BGVrnsParam, DCRTPoly, int64_t>(x1, y1, x2, y2, BGVrnsParam::ParamSets,
-                                                        schemeName, &paramsRunner, sampleNum);
+                                                             schemeName, &paramsRunner, sampleNum);
     } else {
         runDistComp<BGVrnsParam, DCRTPoly, int64_t>(x1, y1, x2, y2, BGVrnsParam::ParamSets, schemeName, &paramsRunner);
     }
@@ -107,7 +101,7 @@ void runDistCompBGV(int64_t x1, int64_t y1, int64_t x2, int64_t y2, bool isTimeC
     ParamsRunner<Poly, int64_t> paramsRunner;
     if (isTimeCheck) {
         runDistCompTimeCheck<BGVParam, Poly, int64_t>(x1, y1, x2, y2, BGVParam::ParamSets,
-                                                 schemeName, &paramsRunner, sampleNum);
+                                                      schemeName, &paramsRunner, sampleNum);
     } else {
         runDistComp<BGVParam, Poly, int64_t>(x1, y1, x2, y2, BGVParam::ParamSets, schemeName, &paramsRunner);
     }
@@ -118,15 +112,18 @@ void runDistCompCKKS(complex<double> x1, complex<double> y1, complex<double> x2,
     CKKSParamsRunner<DCRTPoly> ckksParamsRunner;
     if (isTimeCheck) {
         runDistCompTimeCheck<CKKSParam, DCRTPoly, complex<double>>(x1, y1, x2, y2, CKKSParam::ParamSets,
-                                                              schemeName, &ckksParamsRunner, sampleNum);
+                                                                   schemeName, &ckksParamsRunner, sampleNum);
     } else {
         runDistComp<CKKSParam, DCRTPoly, complex<double>>(x1, y1, x2, y2, CKKSParam::ParamSets, schemeName, &ckksParamsRunner);
     }
 }
 
-template<class Element, typename T>
-void runMultCheck(T seed, CryptoContext<Element> cryptoContext,
-                      ParamsRunner<Element, T> *paramsRunner) {
+template<class ParamType, class Element, typename T>
+void runMultCheck(T seed, ParamType value, ParamsRunner<Element, T> *paramsRunner) {
+
+    double start = currentDateTime();
+    auto cryptoContext = value.generateCryptoContext();
+
     CKKSParamsRunner<Element>* ckksParamsRunner = dynamic_cast<CKKSParamsRunner<Element>*>(paramsRunner);
 
     if (ckksParamsRunner != nullptr) {
@@ -134,11 +131,15 @@ void runMultCheck(T seed, CryptoContext<Element> cryptoContext,
     } else {
         paramsRunner->runMultCheck(seed, cryptoContext);
     }
+
+    double finish = currentDateTime();
+    double diff = finish - start;
+    cout << "Total time taken: " << diff << "\n" <<  endl;
 }
 
 template<class ParamType, class Element, typename T>
 void runMultCheck(T seed, map<int, ParamType> paramSets, string schemeName,
-                      ParamsRunner<Element, T> *paramsRunner) {
+                  ParamsRunner<Element, T> *paramsRunner) {
     typename map<int, ParamType>::iterator iter;
 
     for (iter = paramSets.begin(); iter != paramSets.end(); iter++) {
@@ -146,14 +147,8 @@ void runMultCheck(T seed, map<int, ParamType> paramSets, string schemeName,
         auto value = iter->second;
 
         printHeader(schemeName, to_string(key));
-        double start = currentDateTime();
 
-        auto cryptoContext = value.generateCryptoContext();
-        runMultCheck(seed, cryptoContext, paramsRunner);
-
-        double finish = currentDateTime();
-        double diff = finish - start;
-        cout << "Total time taken: " << diff << "\n" <<  endl;
+        runMultCheck(seed, value, paramsRunner);
     }
 }
 
