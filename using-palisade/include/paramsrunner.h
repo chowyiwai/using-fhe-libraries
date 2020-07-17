@@ -1,5 +1,6 @@
 #ifndef PARAMSRUNNER_H
 #define PARAMSRUNNER_H
+
 #include <palisade.h>
 #include "distancecomputer.h"
 

@@ -1,7 +1,6 @@
 #ifndef DISTANCECOMPUTER_H
 #define DISTANCECOMPUTER_H
 
-#include <iostream>
 #include <vector>
 #include <palisade.h>
 
