@@ -3,6 +3,7 @@
 
 #include <palisade.h>
 #include "distancecomputer.h"
+#include "vector.h"
 #include <cmath>
 
 using namespace std;
@@ -17,15 +18,16 @@ class ParamsRunner {
         ParamsRunner() {};
         ~ParamsRunner() {};
 
-        void run(T x1, T y1, T x2, T y2, CryptoContext<Element> cryptoContext);
+        void runDistComp(T x1, T y1, T x2, T y2, CryptoContext<Element> cryptoContext);
+        void runMultCheck(T x, CryptoContext<Element> cryptoContext);
 
     protected:
         virtual Plaintext encodePlaintext(vector<T> coord, CryptoContext<Element> cc, string plaintextName);
         void printParameters(CryptoContext<Element> cryptoContext);
         virtual void printCoordinates(T x, T y, string xName, string yName);
         LPKeyPair<Element> generateKeys(CryptoContext<Element> cryptoContext);
-        void decryptAndCheck(Ciphertext<Element> ct, Plaintext pt, LPPrivateKey<Element> secretKey, CryptoContext<Element> cryptoContext, string plaintextName);
-        virtual void checkDecryption(Plaintext original, Plaintext decrypted);
+        bool decryptAndCheck(Ciphertext<Element> ct, Plaintext pt, LPPrivateKey<Element> secretKey, CryptoContext<Element> cryptoContext, string plaintextName);
+        virtual bool checkDecryption(Plaintext original, Plaintext decrypted);
 };
 
 #endif // PARAMSRUNNER_H
@@ -80,7 +82,7 @@ LPKeyPair<Element> ParamsRunner<Element, T>::generateKeys(CryptoContext<Element>
 }
 
 template<class Element, typename T>
-void ParamsRunner<Element, T>::run(T x1, T y1, T x2, T y2, CryptoContext<Element> cryptoContext) {
+void ParamsRunner<Element, T>::runDistComp(T x1, T y1, T x2, T y2, CryptoContext<Element> cryptoContext) {
 
     printParameters(cryptoContext);
 
@@ -134,22 +136,69 @@ void ParamsRunner<Element, T>::run(T x1, T y1, T x2, T y2, CryptoContext<Element
 }
 
 template<class Element, typename T>
+void ParamsRunner<Element, T>::runMultCheck(T seed, CryptoContext<Element> cryptoContext) {
+
+    printParameters(cryptoContext);
+
+    cout << "x = " << seed << endl;
+    vector<T> x{seed};
+
+    // Enable encryption and SHE
+    cryptoContext->Enable(ENCRYPTION);
+    cryptoContext->Enable(SHE);
+
+    // Encode x into plaintext
+    cout << "Encoding x into plaintext..." << endl;
+    Plaintext xPlaintext = encodePlaintext(x, cryptoContext, "x");
+
+    cout << "Running key generation..." << endl;
+    LPKeyPair<Element> keyPair = generateKeys(cryptoContext);
+
+    cout << "Encrypting plaintext..." << endl;
+    LPPublicKey<Element> publicKey = keyPair.publicKey;
+    Ciphertext<Element> xCiphertext = cryptoContext->Encrypt(publicKey, xPlaintext);
+
+    cout << "Decrypting ciphertext..." << endl;
+    LPPrivateKey<Element> secretKey = keyPair.secretKey;
+    decryptAndCheck(xCiphertext, xPlaintext, secretKey, cryptoContext, "x");
+
+    Ciphertext<Element> resultCiphertext = xCiphertext;
+    vector<T> actualResult = x;
+    int counter = 0;
+
+    cryptoContext->EvalMultKeyGen(secretKey);
+
+    bool correct = true;
+    while (correct) {
+        resultCiphertext = cryptoContext->EvalMult(resultCiphertext, xCiphertext);
+        actualResult = actualResult * x;
+        Plaintext actualResultPlaintext = encodePlaintext(actualResult, cryptoContext, "Actual Result");
+        correct = decryptAndCheck(resultCiphertext, actualResultPlaintext, secretKey, cryptoContext, "Result");
+        counter = counter + 1;
+    }
+
+    cout << "CORRECT FOR " << counter << " MULTIPLICATION(S)" << endl;
+}
+
+template<class Element, typename T>
 void ParamsRunner<Element, T>::printCoordinates(T x, T y, string xName, string yName) {
     cout << "(" << xName << ", " << yName << ") coordinates are: ";
     cout << "(" << x << ", " << y << ")" << endl;
 }
 
 template<class Element, typename T>
-void ParamsRunner<Element, T>::checkDecryption(Plaintext original, Plaintext decrypted) {
+bool ParamsRunner<Element, T>::checkDecryption(Plaintext original, Plaintext decrypted) {
     if (*original != *decrypted) {
         cout << "Failed" << endl;
+        return false;
     } else {
         cout << "Successful" << endl;
+        return true;
     }
 }
 
 template<class Element, typename T>
-void ParamsRunner<Element, T>::decryptAndCheck(Ciphertext<Element> ct, Plaintext pt, LPPrivateKey<Element> sk, CryptoContext<Element> cc, string plaintextName) {
+bool ParamsRunner<Element, T>::decryptAndCheck(Ciphertext<Element> ct, Plaintext pt, LPPrivateKey<Element> sk, CryptoContext<Element> cc, string plaintextName) {
 
     Plaintext decrypt;
     cc->Decrypt(sk, ct, &decrypt);
@@ -157,7 +206,7 @@ void ParamsRunner<Element, T>::decryptAndCheck(Ciphertext<Element> ct, Plaintext
 
     cout << "Decrypted " << plaintextName << ": " << decrypt << endl;
 
-    checkDecryption(pt, decrypt);
+    return checkDecryption(pt, decrypt);
 }
 
 template<class Element>
@@ -176,8 +225,9 @@ class CKKSParamsRunner: public ParamsRunner<Element, complex<double>> {
         printf("%f + %fi) \n", real(y), imag(y));
     }
 
-    virtual void checkDecryption(Plaintext original, Plaintext decrypted) {
+    virtual bool checkDecryption(Plaintext original, Plaintext decrypted) {
         cout << "Please check correctness manually for CKKS" << endl;
+        return false;
     }
 
 };

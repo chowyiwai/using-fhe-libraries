@@ -13,7 +13,7 @@ void printHeader(string schemeName, string setNumber) {
 }
 
 template <class ParamType, class Element, typename T>
-double computeAvgTime(T x1, T y1, T x2, T y2, ParamType value,
+double computeDistCompAvgTime(T x1, T y1, T x2, T y2, ParamType value,
                       ParamsRunner<Element, T> *paramsRunner, int sampleNum) {
     double totalTime = 0;
 
@@ -23,7 +23,7 @@ double computeAvgTime(T x1, T y1, T x2, T y2, ParamType value,
         double start = currentDateTime();
 
         auto cryptoContext = value.generateCryptoContext();
-        run(x1, y1, x2, y2, cryptoContext, paramsRunner);
+        runDistComp(x1, y1, x2, y2, cryptoContext, paramsRunner);
 
         double finish = currentDateTime();
         double diff = finish - start;
@@ -35,12 +35,13 @@ double computeAvgTime(T x1, T y1, T x2, T y2, ParamType value,
     return avgTime;
 }
 
-/** @brief Runs each parameter set multiple times and prints the average time taken for it to run.
+/** @brief Runs distance computation for each parameter set multiple times
+ *  and prints the average time taken for it to run.
  *
- * @param sampleNum Number of times each parameter set is run
+ *  @param sampleNum Number of times each parameter set is run
  */
 template<class ParamType, class Element, typename T>
-void runAvgTimeCheck(T x1, T y1, T x2, T y2, map<int, ParamType> paramSets, string schemeName,
+void runDistCompTimeCheck(T x1, T y1, T x2, T y2, map<int, ParamType> paramSets, string schemeName,
                     ParamsRunner<Element, T> *paramsRunner, int sampleNum) {
     typename map<int, ParamType>::iterator iter;
 
@@ -51,25 +52,25 @@ void runAvgTimeCheck(T x1, T y1, T x2, T y2, map<int, ParamType> paramSets, stri
         auto value = iter->second;
 
         printHeader(schemeName, to_string(key));
-        double avgTime = computeAvgTime<ParamType, Element, T>(x1, y1, x2, y2, value, paramsRunner, sampleNum);
+        double avgTime = computeDistCompAvgTime<ParamType, Element, T>(x1, y1, x2, y2, value, paramsRunner, sampleNum);
         cout << "Average Time Taken: " << avgTime << "\n" <<  endl;
     }
 }
 
 template<class Element, typename T>
-void run(T x1, T y1, T x2, T y2, CryptoContext<Element> cryptoContext,
+void runDistComp(T x1, T y1, T x2, T y2, CryptoContext<Element> cryptoContext,
          ParamsRunner<Element, T> *paramsRunner) {
     CKKSParamsRunner<Element>* ckksParamsRunner = dynamic_cast<CKKSParamsRunner<Element>*>(paramsRunner);
 
     if (ckksParamsRunner != nullptr) {
-        ckksParamsRunner->run(x1, y1, x2, y2, cryptoContext);
+        ckksParamsRunner->runDistComp(x1, y1, x2, y2, cryptoContext);
     } else {
-        paramsRunner->run(x1, y1, x2, y2, cryptoContext);
+        paramsRunner->runDistComp(x1, y1, x2, y2, cryptoContext);
     }
 }
 
 template<class ParamType, class Element, typename T>
-void run(T x1, T y1, T x2, T y2, map<int, ParamType> paramSets, string schemeName,
+void runDistComp(T x1, T y1, T x2, T y2, map<int, ParamType> paramSets, string schemeName,
          ParamsRunner<Element, T> *paramsRunner) {
 
     typename map<int, ParamType>::iterator iter;
@@ -82,7 +83,7 @@ void run(T x1, T y1, T x2, T y2, map<int, ParamType> paramSets, string schemeNam
         double start = currentDateTime();
 
         auto cryptoContext = value.generateCryptoContext();
-        run(x1, y1, x2, y2, cryptoContext, paramsRunner);
+        runDistComp(x1, y1, x2, y2, cryptoContext, paramsRunner);
 
         double finish = currentDateTime();
         double diff = finish - start;
@@ -90,37 +91,88 @@ void run(T x1, T y1, T x2, T y2, map<int, ParamType> paramSets, string schemeNam
     }
 }
 
-void runBGVrns(int64_t x1, int64_t y1, int64_t x2, int64_t y2, bool isTimeCheck, int sampleNum = 0) {
+void runDistCompBGVrns(int64_t x1, int64_t y1, int64_t x2, int64_t y2, bool isTimeCheck, int sampleNum = 0) {
     string schemeName = "BGVrns";
     ParamsRunner<DCRTPoly, int64_t> paramsRunner;
     if (isTimeCheck) {
-        runAvgTimeCheck<BGVrnsParam, DCRTPoly, int64_t>(x1, y1, x2, y2, BGVrnsParam::ParamSets,
+        runDistCompTimeCheck<BGVrnsParam, DCRTPoly, int64_t>(x1, y1, x2, y2, BGVrnsParam::ParamSets,
                                                         schemeName, &paramsRunner, sampleNum);
     } else {
-        run<BGVrnsParam, DCRTPoly, int64_t>(x1, y1, x2, y2, BGVrnsParam::ParamSets, schemeName, &paramsRunner);
+        runDistComp<BGVrnsParam, DCRTPoly, int64_t>(x1, y1, x2, y2, BGVrnsParam::ParamSets, schemeName, &paramsRunner);
     }
 }
 
-void runBGV(int64_t x1, int64_t y1, int64_t x2, int64_t y2, bool isTimeCheck, int sampleNum = 0) {
+void runDistCompBGV(int64_t x1, int64_t y1, int64_t x2, int64_t y2, bool isTimeCheck, int sampleNum = 0) {
     string schemeName = "BGV";
     ParamsRunner<Poly, int64_t> paramsRunner;
     if (isTimeCheck) {
-        runAvgTimeCheck<BGVParam, Poly, int64_t>(x1, y1, x2, y2, BGVParam::ParamSets,
+        runDistCompTimeCheck<BGVParam, Poly, int64_t>(x1, y1, x2, y2, BGVParam::ParamSets,
                                                  schemeName, &paramsRunner, sampleNum);
     } else {
-        run<BGVParam, Poly, int64_t>(x1, y1, x2, y2, BGVParam::ParamSets, schemeName, &paramsRunner);
+        runDistComp<BGVParam, Poly, int64_t>(x1, y1, x2, y2, BGVParam::ParamSets, schemeName, &paramsRunner);
     }
 }
 
-void runCKKS(complex<double> x1, complex<double> y1, complex<double> x2, complex<double> y2, bool isTimeCheck, int sampleNum = 0) {
+void runDistCompCKKS(complex<double> x1, complex<double> y1, complex<double> x2, complex<double> y2, bool isTimeCheck, int sampleNum = 0) {
     string schemeName = "CKKS";
     CKKSParamsRunner<DCRTPoly> ckksParamsRunner;
     if (isTimeCheck) {
-        runAvgTimeCheck<CKKSParam, DCRTPoly, complex<double>>(x1, y1, x2, y2, CKKSParam::ParamSets,
+        runDistCompTimeCheck<CKKSParam, DCRTPoly, complex<double>>(x1, y1, x2, y2, CKKSParam::ParamSets,
                                                               schemeName, &ckksParamsRunner, sampleNum);
     } else {
-        run<CKKSParam, DCRTPoly, complex<double>>(x1, y1, x2, y2, CKKSParam::ParamSets, schemeName, &ckksParamsRunner);
+        runDistComp<CKKSParam, DCRTPoly, complex<double>>(x1, y1, x2, y2, CKKSParam::ParamSets, schemeName, &ckksParamsRunner);
     }
+}
+
+template<class Element, typename T>
+void runMultCheck(T seed, CryptoContext<Element> cryptoContext,
+                      ParamsRunner<Element, T> *paramsRunner) {
+    CKKSParamsRunner<Element>* ckksParamsRunner = dynamic_cast<CKKSParamsRunner<Element>*>(paramsRunner);
+
+    if (ckksParamsRunner != nullptr) {
+        ckksParamsRunner->runMultCheck(seed, cryptoContext);
+    } else {
+        paramsRunner->runMultCheck(seed, cryptoContext);
+    }
+}
+
+template<class ParamType, class Element, typename T>
+void runMultCheck(T seed, map<int, ParamType> paramSets, string schemeName,
+                      ParamsRunner<Element, T> *paramsRunner) {
+    typename map<int, ParamType>::iterator iter;
+
+    for (iter = paramSets.begin(); iter != paramSets.end(); iter++) {
+        auto key = iter->first;
+        auto value = iter->second;
+
+        printHeader(schemeName, to_string(key));
+        double start = currentDateTime();
+
+        auto cryptoContext = value.generateCryptoContext();
+        runMultCheck(seed, cryptoContext, paramsRunner);
+
+        double finish = currentDateTime();
+        double diff = finish - start;
+        cout << "Total time taken: " << diff << "\n" <<  endl;
+    }
+}
+
+void runMultCheckBGVrns(int64_t seed) {
+    string schemeName = "BGVrns";
+    ParamsRunner<DCRTPoly, int64_t> paramsRunner;
+    runMultCheck<BGVrnsParam, DCRTPoly, int64_t>(seed, BGVrnsParam::ParamSets, schemeName, &paramsRunner);
+}
+
+void runMultCheckBGV(int64_t seed) {
+    string schemeName = "BGV";
+    ParamsRunner<Poly, int64_t> paramsRunner;
+    runMultCheck<BGVParam, Poly, int64_t>(seed, BGVParam::ParamSets, schemeName, &paramsRunner);
+}
+
+void runMultCheckCKKS(complex<double> seed) {
+    string schemeName = "CKKS";
+    ParamsRunner<DCRTPoly, complex<double>> paramsRunner;
+    runMultCheck<CKKSParam, DCRTPoly, complex<double>>(seed, CKKSParam::ParamSets, schemeName, &paramsRunner);
 }
 
 int main() {
@@ -142,16 +194,22 @@ int main() {
     complex<double> dsoXCoordDouble = 1.290;
     complex<double> dsoYCoordDouble = 103.789;
 
-    cout << "RUNNING FOR ALL SCHEMES..." << endl;
-    runBGVrns(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord);
-    runBGV(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord);
-    runCKKS(stadiumXCoordDouble, stadiumYCoordDouble, dsoXCoordDouble, dsoYCoordDouble);
+    cout << "RUNNING DISTANCE COMPUTATION FOR ALL SCHEMES..." << endl;
+    runDistCompBGVrns(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord, false);
+    runDistCompBGV(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord, false);
+    runDistCompCKKS(stadiumXCoordDouble, stadiumYCoordDouble, dsoXCoordDouble, dsoYCoordDouble, false);
 
-    cout << "RUNNING TIME CHECKS..." << endl;
+    cout << "RUNNING DISTANCE COMPUTATION TIME CHECKS..." << endl;
     int sampleNum = 5; // number of times to run each parameter set
-    runBGVrns(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord, true, sampleNum);
-    runBGV(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord, true, sampleNum);
-    runCKKS(stadiumXCoordDouble, stadiumYCoordDouble, dsoXCoordDouble, dsoYCoordDouble, true, sampleNum);
+    runDistCompBGVrns(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord, true, sampleNum);
+    runDistCompBGV(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord, true, sampleNum);
+    runDistCompCKKS(stadiumXCoordDouble, stadiumYCoordDouble, dsoXCoordDouble, dsoYCoordDouble, true, sampleNum);
+
+    cout << "RUNNING MULTIPLY CHECK FOR BGVrns and BGV..." << endl;
+    runMultCheckBGVrns(1); // use 1 so that the result will always be less than the plaintext modulus
+    runMultCheckBGV(1);
+    // there is currently no support for CKKS as there are approximation errors for this scheme
+    // and there is no function to compare plaintext values
 
     return 0;
 }
