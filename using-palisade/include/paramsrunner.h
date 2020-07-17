@@ -9,7 +9,7 @@
 using namespace std;
 using namespace lbcrypto;
 
-/** @brief Represents the main runner for computing distances
+/** @brief Represents the main runner of various computations
  * given coordinates and parameter sets (in the form of CryptoContext objects)
  */
 template <class Element, typename T>
