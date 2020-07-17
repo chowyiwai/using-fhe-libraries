@@ -27,6 +27,7 @@ class ParamsRunner {
         void decryptAndCheck(Ciphertext<Element> ct, Plaintext pt, LPPrivateKey<Element> secretKey, CryptoContext<Element> cryptoContext, string plaintextName);
         virtual void checkDecryption(Plaintext original, Plaintext decrypted);
 };
+
 #endif // PARAMSRUNNER_H
 
 template<class Element, typename T>
@@ -41,7 +42,7 @@ Plaintext ParamsRunner<Element, T>::encodePlaintext(vector<T> coord, CryptoConte
 template<class Element, typename T>
 void ParamsRunner<Element, T>::printParameters(CryptoContext<Element> cryptoContext) {
 
-    // GET PARAMETER SET
+    // Get parameter set
     int64_t p = cryptoContext->GetCryptoParameters()->GetPlaintextModulus();
     int64_t n = cryptoContext->GetCryptoParameters()
                         ->GetElementParams()
@@ -91,7 +92,7 @@ void ParamsRunner<Element, T>::run(T x1, T y1, T x2, T y2, CryptoContext<Element
     vector<T> x2Coord{x2};
     vector<T> y2Coord{y2};
 
-    // enable encryption and SHE
+    // Enable encryption and SHE
     cryptoContext->Enable(ENCRYPTION);
     cryptoContext->Enable(SHE);
 
