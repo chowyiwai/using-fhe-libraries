@@ -18,7 +18,7 @@ class Param {
 
 #endif // PARAMS_H
 
-//// Represents parameters for BGVrns scheme
+/** Represents parameters for BGVrns scheme */
 class BGVrnsParam: Param<DCRTPoly> {
 
     public:
@@ -44,7 +44,7 @@ class BGVrnsParam: Param<DCRTPoly> {
 
 };
 
-//// Represents parameters for BGV scheme
+/** Represents parameters for BGV scheme */
 class BGVParam: Param<Poly> {
 
     public:
@@ -80,23 +80,22 @@ class BGVParam: Param<Poly> {
             if (qSpecified) {
                 return make_shared<ILParams>(m, q);
             }
-
             return ElemParamFactory::GenElemParams<ILParams>(m, numOfBits, numOfTowers);
         }
 };
 
-//// Represents parameters for CKKS scheme
+/** Represents parameters for CKKS scheme */
 class CKKSParam: Param<DCRTPoly> {
 
     public:
         static map<int, CKKSParam> ParamSets;
 
         CKKSParam(int64_t m, int64_t numPrimes, int64_t scaleExp, int64_t relinWindow, int64_t batchSize)
-            : m(m), numPrimes(numPrimes), scaleExp(scaleExp), relinWindow(relinWindow), batchSize(batchSize) {}
+            : m(m), numPrimes(numPrimes), relinWindow(relinWindow), batchSize(batchSize), scaleExp(scaleExp) {}
 
         // overloaded constructor
         CKKSParam(int64_t multDepth, int64_t scaleFactorBits, int64_t batchSize, SecurityLevel securityLevel, int64_t n)
-            : multDepth(multDepth), scaleExp(scaleFactorBits), batchSize(batchSize), securityLevel(securityLevel), n(n) {
+            :  batchSize(batchSize), scaleExp(scaleFactorBits), multDepth(multDepth), securityLevel(securityLevel), n(n) {
                 securityLevelSpecified = true;
         }
 
@@ -104,16 +103,15 @@ class CKKSParam: Param<DCRTPoly> {
             if (securityLevelSpecified) {
                 return CryptoContextFactory<DCRTPoly>::genCryptoContextCKKS(multDepth, scaleExp, batchSize, securityLevel, n, rsTech);
             }
-
             return GenCryptoContextCKKS<DCRTPoly>(m, numPrimes, scaleExp, relinWindow, batchSize, mode, ksTech, rsTech);
         }
 
     private:
         int64_t m; // cyclOrder
         int64_t numPrimes; // number of primes that make up the ciphertext modulus and equal to multiplicative depth + 1
-        int64_t scaleExp; // equal to `dcrtbits` (the number of bits of the ciphertext modulus) and equal to the plaintext modulus
         int64_t relinWindow;
         int64_t batchSize;
+        int64_t scaleExp; // equal to `dcrtbits` (the number of bits of the ciphertext modulus) and equal to the plaintext modulus
         MODE mode = RLWE;
         KeySwitchTechnique ksTech = BV;
         RescalingTechnique rsTech = APPROXRESCALE;
@@ -122,6 +120,5 @@ class CKKSParam: Param<DCRTPoly> {
         SecurityLevel securityLevel;
         bool securityLevelSpecified = false;
         int64_t n; // dimension; if specified as 0, the library will choose it based on the security level
-
 };
 

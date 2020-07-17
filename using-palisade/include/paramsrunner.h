@@ -3,10 +3,14 @@
 
 #include <palisade.h>
 #include "distancecomputer.h"
+#include <cmath>
 
 using namespace std;
 using namespace lbcrypto;
 
+/** @brief Represents the main runner for computing distances
+ * given coordinates and parameter sets (in the form of CryptoContext objects)
+ */
 template <class Element, typename T>
 class ParamsRunner {
     public:
@@ -27,7 +31,6 @@ class ParamsRunner {
 
 template<class Element, typename T>
 Plaintext ParamsRunner<Element, T>::encodePlaintext(vector<T> coord, CryptoContext<Element> cc, string plaintextName) {
-    cout << "in normal one" << endl;
     vector<int64_t>* typeCastedCoord;
     typeCastedCoord = (vector<int64_t>*) &coord;
     Plaintext plaintext = cc->MakeCoefPackedPlaintext(*typeCastedCoord);
@@ -56,6 +59,9 @@ void ParamsRunner<Element, T>::printParameters(CryptoContext<Element> cryptoCont
     cout << "q (size of field) = "
         << q
         << endl;
+    cout << "log2(q) = "
+        << log2(q.ConvertToDouble())
+        << endl;
 }
 
 template <class Element, typename T>
@@ -75,10 +81,8 @@ LPKeyPair<Element> ParamsRunner<Element, T>::generateKeys(CryptoContext<Element>
 template<class Element, typename T>
 void ParamsRunner<Element, T>::run(T x1, T y1, T x2, T y2, CryptoContext<Element> cryptoContext) {
 
-    // PRINT PARAMETER SET
     printParameters(cryptoContext);
 
-    // PRINT ORIGINAL COORDINATES
     printCoordinates(x1, y1, "x1", "y1");
     printCoordinates(x2, y2, "x2", "y2");
 
@@ -87,22 +91,20 @@ void ParamsRunner<Element, T>::run(T x1, T y1, T x2, T y2, CryptoContext<Element
     vector<T> x2Coord{x2};
     vector<T> y2Coord{y2};
 
-    // ENABLE ENCRYPTION AND SHE
+    // enable encryption and SHE
     cryptoContext->Enable(ENCRYPTION);
     cryptoContext->Enable(SHE);
 
-    // ENCODE COORDINATES INTO PLAINTEXTS
+    // Encode coordinates into plaintexts
     cout << "Encoding coordinates into plaintexts..." << endl;
     Plaintext x1Plaintext = encodePlaintext(x1Coord, cryptoContext, "x1");
     Plaintext y1Plaintext = encodePlaintext(y1Coord, cryptoContext, "y1");
     Plaintext x2Plaintext = encodePlaintext(x2Coord, cryptoContext, "x2");
     Plaintext y2Plaintext = encodePlaintext(y2Coord, cryptoContext, "y2");
 
-    // GENERATE KEYS
     cout << "Running key generation..." << endl;
     LPKeyPair<Element> keyPair = generateKeys(cryptoContext);
 
-    // ENCRYPT PLAINTEXTS
     cout << "Encrypting plaintexts..." << endl;
     LPPublicKey<Element> publicKey = keyPair.publicKey;
     Ciphertext<Element> x1Ciphertext = cryptoContext->Encrypt(publicKey, x1Plaintext);
@@ -110,7 +112,6 @@ void ParamsRunner<Element, T>::run(T x1, T y1, T x2, T y2, CryptoContext<Element
     Ciphertext<Element> x2Ciphertext = cryptoContext->Encrypt(publicKey, x2Plaintext);
     Ciphertext<Element> y2Ciphertext = cryptoContext->Encrypt(publicKey, y2Plaintext);
 
-    // DECRYPT PLAINTEXTS
     cout << "Decrypting ciphertexts..." << endl;
     LPPrivateKey<Element> secretKey = keyPair.secretKey;
     decryptAndCheck(x1Ciphertext, x1Plaintext, secretKey, cryptoContext, "x1");
@@ -120,14 +121,13 @@ void ParamsRunner<Element, T>::run(T x1, T y1, T x2, T y2, CryptoContext<Element
 
     DistanceComputer<Element, T> distanceComputer;
 
-    // COMPUTE SQUARE OF DISTANCE
+    // Compute square of distance
     vector<T> distSq = distanceComputer.computeDistanceSquared(x1, y1, x2, y2);
     Plaintext distSqPlaintext = encodePlaintext(distSq, cryptoContext, "Distance Squared");
 
-    // HOMOMORPHICALLY COMPUTE SQUARE OF DISTANCE
-    cout << "EvalMultKeyGen(secretKey)" << endl;
+    // Homomorphically compute square of distance
+    cout << "EvalMultKeyGen(secretKey)..." << endl;
     cryptoContext->EvalMultKeyGen(secretKey);
-    cout << "EvalMultKeyGen(secretKey) COMPLETE" << endl;
     Ciphertext<Element> distanceCiphertext = distanceComputer.computeDistanceSquared(x1Ciphertext, y1Ciphertext, x2Ciphertext, y2Ciphertext, cryptoContext, secretKey);
     decryptAndCheck(distanceCiphertext, distSqPlaintext, secretKey, cryptoContext, "Distance Squared");
 }
@@ -135,8 +135,7 @@ void ParamsRunner<Element, T>::run(T x1, T y1, T x2, T y2, CryptoContext<Element
 template<class Element, typename T>
 void ParamsRunner<Element, T>::printCoordinates(T x, T y, string xName, string yName) {
     cout << "(" << xName << ", " << yName << ") coordinates are: ";
-    printf("(%" PRId64 ", ", x);
-    printf("%" PRId64 ")\n", y);
+    cout << "(" << x << ", " << y << ")" << endl;
 }
 
 template<class Element, typename T>
@@ -153,7 +152,6 @@ void ParamsRunner<Element, T>::decryptAndCheck(Ciphertext<Element> ct, Plaintext
 
     Plaintext decrypt;
     cc->Decrypt(sk, ct, &decrypt);
-
     decrypt->SetLength(pt->GetLength());
 
     cout << "Decrypted " << plaintextName << ": " << decrypt << endl;
@@ -165,7 +163,6 @@ template<class Element>
 class CKKSParamsRunner: public ParamsRunner<Element, complex<double>> {
 
     virtual Plaintext encodePlaintext(vector<complex<double>> coord, CryptoContext<Element> cc, string plaintextName) {
-        cout << "in ckks one" << endl;
         Plaintext plaintext;
         plaintext = cc->MakeCKKSPackedPlaintext(coord);
         cout << plaintextName << " Plaintext: " << plaintext << endl;

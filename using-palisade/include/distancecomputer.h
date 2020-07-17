@@ -8,8 +8,9 @@ using namespace std;
 using namespace lbcrypto;
 using std::vector;
 
-//// Represents a distance computer that
-//// supports both homomorphic and non-homomorphic computations
+/** @brief Represents a distance computer that
+ * supports both homomorphic and non-homomorphic computations
+ */
 template <class Element, typename T>
 class DistanceComputer {
 
@@ -20,11 +21,11 @@ class DistanceComputer {
         vector<T> computeDistanceSquared(T x1, T y1, T x2, T y2) {
             cout << "Evaluating square of distance between (" << x1 << ", " << y1
                 << ") and (" << x2 << ", " << y1 << ")" <<  endl;
-            auto xDiff = abs(x1 - x2);
-            auto yDiff = abs(y1 - y2);
-            auto xDiffSquared = pow(xDiff, 2);
-            auto yDiffSquared = pow(yDiff, 2);
-            auto distanceSquared = xDiffSquared + yDiffSquared;
+            T xDiff = abs(x1 - x2);
+            T yDiff = abs(y1 - y2);
+            T xDiffSquared = pow(xDiff, 2);
+            T yDiffSquared = pow(yDiff, 2);
+            T distanceSquared = xDiffSquared + yDiffSquared;
             cout << "Square of distance = " << distanceSquared << endl;
             vector<T> distanceSquaredVector{distanceSquared};
             return distanceSquaredVector;
