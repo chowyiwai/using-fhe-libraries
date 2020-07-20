@@ -41,10 +41,9 @@
 		<Unit filename="include/distancecomputer.h" />
 		<Unit filename="include/params.h" />
 		<Unit filename="include/paramsrunner.h" />
-		<Unit filename="src/distancecomputer.cpp" />
+		<Unit filename="include/vector.h" />
 		<Unit filename="src/main.cpp" />
 		<Unit filename="src/params.cpp" />
-		<Unit filename="src/paramsrunner.cpp" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>
