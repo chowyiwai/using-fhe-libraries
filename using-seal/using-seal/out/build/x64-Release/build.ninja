@@ -43,11 +43,11 @@ include rules.ninja
 
 build cmake_object_order_depends_target_using-seal_RelWithDebInfo: phony || CMakeFiles\using-seal.dir
 
-build CMakeFiles\using-seal.dir\using-seal.cpp.obj: CXX_COMPILER__using-seal_RelWithDebInfo ..\..\..\using-seal.cpp || cmake_object_order_depends_target_using-seal_RelWithDebInfo
+build CMakeFiles\using-seal.dir\src\using-seal.cpp.obj: CXX_COMPILER__using-seal_RelWithDebInfo ..\..\..\src\using-seal.cpp || cmake_object_order_depends_target_using-seal_RelWithDebInfo
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /Zi /O2 /Ob1 /DNDEBUG   -std:c++17
   INCLUDES = -IC:\Users\yiwai\Documents\SEAL\native\src -IC:\Users\yiwai\Documents\SEAL\native\examples
   OBJECT_DIR = CMakeFiles\using-seal.dir
-  OBJECT_FILE_DIR = CMakeFiles\using-seal.dir
+  OBJECT_FILE_DIR = CMakeFiles\using-seal.dir\src
   TARGET_COMPILE_PDB = CMakeFiles\using-seal.dir\
   TARGET_PDB = using-seal.pdb
 
@@ -59,7 +59,7 @@ build CMakeFiles\using-seal.dir\using-seal.cpp.obj: CXX_COMPILER__using-seal_Rel
 #############################################
 # Link the executable using-seal.exe
 
-build using-seal.exe: CXX_EXECUTABLE_LINKER__using-seal_RelWithDebInfo CMakeFiles\using-seal.dir\using-seal.cpp.obj | C$:\Users\yiwai\Documents\SEAL\lib\x64\Release\seal.lib
+build using-seal.exe: CXX_EXECUTABLE_LINKER__using-seal_RelWithDebInfo CMakeFiles\using-seal.dir\src\using-seal.cpp.obj | C$:\Users\yiwai\Documents\SEAL\lib\x64\Release\seal.lib
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /Zi /O2 /Ob1 /DNDEBUG
   LINK_FLAGS = /machine:x64 /debug /INCREMENTAL /subsystem:console
   LINK_LIBRARIES = C:\Users\yiwai\Documents\SEAL\lib\x64\Release\seal.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib

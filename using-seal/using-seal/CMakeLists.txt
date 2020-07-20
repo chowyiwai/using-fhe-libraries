@@ -4,7 +4,7 @@ project (using-seal)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(using-seal using-seal.cpp "include/distancecomputer.h" "include/paramsrunner.h")
+add_executable(using-seal src/using-seal.cpp "include/distancecomputer.h" "include/paramsrunner.h")
 
 set(CMAKE_GENERATOR "Ninja")
 

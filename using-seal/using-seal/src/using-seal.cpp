@@ -2,7 +2,7 @@
 //
 
 #include <iostream>
-#include "include/paramsrunner.h"
+#include "../include/paramsrunner.h"
 
 using namespace std;
 using namespace seal;
