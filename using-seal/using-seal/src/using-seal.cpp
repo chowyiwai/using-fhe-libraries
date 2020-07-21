@@ -2,24 +2,63 @@
 //
 
 #include <iostream>
+#include <chrono>
 #include "../include/paramsrunner.h"
+#include "../include/params.h"
 
 using namespace std;
 using namespace seal;
+using namespace chrono;
 
-void runCKKS(double x1, double y1, double x2, double y2) {
-    EncryptionParameters parms(scheme_type::CKKS);
+void printHeader(string schemeName, string setNumber) {
+    string title = "| Running " + schemeName + " " + setNumber + " parameter set... |";
+    string border(title.length(), '-');
+    cout << border << endl;
+    cout << title << endl;
+    cout << border << "\n" << endl;
+}
 
-    size_t poly_modulus_degree = 8192;
-    parms.set_poly_modulus_degree(poly_modulus_degree);
-    parms.set_coeff_modulus(CoeffModulus::Create(poly_modulus_degree, { 60, 40, 40, 60 }));
+steady_clock::time_point getCurrentTime() {
+    return steady_clock::now();
+}
 
-    double scale = pow(2.0, 40);
+template<typename T, class EncoderType, class ParamType>
+void runDistComp(T x1, T y1, T x2, T y2, ParamType value, ParamsRunner<T, EncoderType>* paramsRunner) {
 
-    auto context = SEALContext::Create(parms);
+    steady_clock::time_point start = getCurrentTime();
+    auto context = value.generateContext();
+    auto scale = value.getScale();
 
+    paramsRunner->runDistComp(x1, y1, x2, y2, context, scale);
+
+    steady_clock::time_point finish = getCurrentTime();
+    auto diff = duration_cast<milliseconds> (finish - start).count();
+    cout << "Total time taken: " << diff << "\n" << endl;
+}
+
+template <typename T, class EncoderType, class ParamType>
+void runDistComp(T x1, T y1, T x2, T y2, map<int, ParamType> paramSets, string schemeName, ParamsRunner<T, EncoderType> paramsRunner) {
+    typename map<int, ParamType>::iterator iter;
+
+    for (iter = paramSets.begin(); iter != paramSets.end(); iter++) {
+        auto key = iter->first;
+        auto value = iter->second;
+
+        printHeader(schemeName, to_string(key));
+        runDistComp<T, EncoderType, ParamType>(x1, y1, x2, y2, value, &paramsRunner);
+    }
+}
+
+void runDistCompCKKS(double x1, double y1, double x2, double y2) {
+    string schemeName = "CKKS";
     ParamsRunner<double, CKKSEncoder> paramsRunner;
-    paramsRunner.runDistComp(x1, y1, x2, y2, context, scale);
+    /*
+    if (isTimeCheck) {
+        runDistCompTimeCheck<CKKSParam, DCRTPoly, complex<double>>(x1, y1, x2, y2, CKKSParam::ParamSets,
+            schemeName, &ckksParamsRunner, sampleNum);
+    }
+    */
+    runDistComp<double, CKKSEncoder, CKKSParam>(x1, y1, x2, y2, CKKSParam::ParamSets, schemeName, paramsRunner);
 }
 
 int main()
@@ -36,6 +75,6 @@ int main()
     double dsoXCoordDouble = 1.290;
     double dsoYCoordDouble = 103.789;
 
-    runCKKS(stadiumXCoordDouble, stadiumYCoordDouble, dsoXCoordDouble, dsoYCoordDouble);
+    runDistCompCKKS(stadiumXCoordDouble, stadiumYCoordDouble, dsoXCoordDouble, dsoYCoordDouble);
 
 }

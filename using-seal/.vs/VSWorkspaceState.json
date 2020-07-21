@@ -2,8 +2,9 @@
   "ExpandedNodes": [
     "",
     "\\using-seal",
+    "\\using-seal\\include",
     "\\using-seal\\src"
   ],
-  "SelectedNode": "\\using-seal\\src\\using-seal.cpp",
+  "SelectedNode": "\\using-seal\\include\\params.h",
   "PreviewInSolutionExplorer": false
 }
