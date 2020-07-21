@@ -22,7 +22,7 @@ msvc_deps_prefix = Note: including file:
 
 rule CXX_COMPILER__using-seal_RelWithDebInfo
   deps = msvc
-  command = clang-cl.exe  /nologo /TP $DEFINES $INCLUDES $FLAGS /showIncludes /Fo$out /Fd$TARGET_COMPILE_PDB /FS -c $in
+  command = C:\PROGRA~2\MIB055~1\2019\COMMUN~1\VC\Tools\MSVC\1426~1.288\bin\HostX64\x64\cl.exe  /nologo /TP $DEFINES $INCLUDES $FLAGS /showIncludes /Fo$out /Fd$TARGET_COMPILE_PDB /FS -c $in
   description = Building CXX object $out
 
 
