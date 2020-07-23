@@ -50,8 +50,8 @@ class BGVParam: Param<Poly> {
     public:
         static map<int, BGVParam> ParamSets;
 
-        BGVParam(PlaintextModulus p, int64_t m, int64_t numOfBits, int numOfTowers, int64_t relinWindow, float stdDev)
-            : p(p), m(m), numOfBits(numOfBits), numOfTowers(numOfTowers), relinWindow(relinWindow), stdDev(stdDev) {}
+        BGVParam(PlaintextModulus p, int64_t m, int64_t numOfBits, int64_t relinWindow, float stdDev)
+            : p(p), m(m), numOfBits(numOfBits), relinWindow(relinWindow), stdDev(stdDev) {}
 
         // overloaded constructor
         BGVParam(PlaintextModulus p, int64_t m, int64_t relinWindow, float stdDev, BigInteger q)
@@ -69,7 +69,6 @@ class BGVParam: Param<Poly> {
         PlaintextModulus p; // plaintext modulus
         int64_t m; // order; n = m / 2;
         int64_t numOfBits;
-        int numOfTowers;
         int64_t relinWindow;
         float stdDev;
         BigInteger q; // ciphertext modulus
@@ -80,7 +79,7 @@ class BGVParam: Param<Poly> {
             if (qSpecified) {
                 return make_shared<ILParams>(m, q);
             }
-            return ElemParamFactory::GenElemParams<ILParams>(m, numOfBits, numOfTowers);
+            return ElemParamFactory::GenElemParams<ILParams>(m, numOfBits);
         }
 };
 

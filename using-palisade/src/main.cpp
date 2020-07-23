@@ -29,7 +29,7 @@ void runDistComp(T x1, T y1, T x2, T y2, ParamType value,
 
     double finish = currentDateTime();
     double diff = finish - start;
-    cout << "Total time taken: " << diff << "\n" <<  endl;
+    cout << "Total time taken: " << diff << "ms \n" <<  endl;
 }
 
 template <class ParamType, class Element, typename T>
@@ -66,7 +66,7 @@ void runDistCompTimeCheck(T x1, T y1, T x2, T y2, map<int, ParamType> paramSets,
 
         printHeader(schemeName, to_string(key));
         double avgTime = computeDistCompAvgTime<ParamType, Element, T>(x1, y1, x2, y2, value, paramsRunner, sampleNum);
-        cout << "Average Time Taken: " << avgTime << "\n" <<  endl;
+        cout << "Average Time Taken: " << avgTime << "ms \n" <<  endl;
     }
 }
 
@@ -134,7 +134,7 @@ void runMultCheck(T seed, ParamType value, ParamsRunner<Element, T> *paramsRunne
 
     double finish = currentDateTime();
     double diff = finish - start;
-    cout << "Total time taken: " << diff << "\n" <<  endl;
+    cout << "Total time taken: " << diff << "ms \n" <<  endl;
 }
 
 template<class ParamType, class Element, typename T>
