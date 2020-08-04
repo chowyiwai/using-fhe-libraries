@@ -59,7 +59,7 @@ void ParamsRunner<Element, T>::printParameters(CryptoContext<Element> cryptoCont
     cout << "n (dimension) =  "
         << n
         << endl;
-    cout << "q (size of field) = "
+    cout << "q (ciphertext modulus) = "
         << q
         << endl;
     cout << "log2(q) = "

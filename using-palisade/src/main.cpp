@@ -12,12 +12,15 @@ void printHeader(string schemeName, string setNumber) {
     cout << border << "\n" << endl;
 }
 
+/** Runs distance computation on a single parameter set
+ *  @param value is the parameter set
+ */
 template<class ParamType, class Element, typename T>
-void runDistComp(T x1, T y1, T x2, T y2, ParamType value,
+double runDistComp(T x1, T y1, T x2, T y2, ParamType value,
          ParamsRunner<Element, T> *paramsRunner) {
 
     double start = currentDateTime();
-    auto cryptoContext = value.generateCryptoContext();
+    CryptoContext<Element> cryptoContext = value.generateCryptoContext();
 
     CKKSParamsRunner<Element>* ckksParamsRunner = dynamic_cast<CKKSParamsRunner<Element>*>(paramsRunner);
 
@@ -30,8 +33,10 @@ void runDistComp(T x1, T y1, T x2, T y2, ParamType value,
     double finish = currentDateTime();
     double diff = finish - start;
     cout << "Total time taken: " << diff << "ms \n" <<  endl;
+    return diff;
 }
 
+/** Computes the average time for running distance computation for one parameter set */
 template <class ParamType, class Element, typename T>
 double computeDistCompAvgTime(T x1, T y1, T x2, T y2, ParamType value,
                       ParamsRunner<Element, T> *paramsRunner, int sampleNum) {
@@ -39,8 +44,10 @@ double computeDistCompAvgTime(T x1, T y1, T x2, T y2, ParamType value,
 
     streambuf *old = cout.rdbuf(0); // change cout's stream buffer to remove all the print statements when running
 
+
     for (int i = 0; i < sampleNum; i++) {
-        runDistComp(x1, y1, x2, y2, value, paramsRunner);
+        auto diff = runDistComp(x1, y1, x2, y2, value, paramsRunner);
+        totalTime += diff;
     }
 
     cout.rdbuf(old);
@@ -48,7 +55,7 @@ double computeDistCompAvgTime(T x1, T y1, T x2, T y2, ParamType value,
     return avgTime;
 }
 
-/** @brief Runs distance computation for each parameter set multiple times
+/** @brief Runs distance computation for all given parameter sets multiple times
  *  and prints the average time taken for it to run.
  *
  *  @param sampleNum Number of times each parameter set is run
@@ -69,6 +76,8 @@ void runDistCompTimeCheck(T x1, T y1, T x2, T y2, map<int, ParamType> paramSets,
         cout << "Average Time Taken: " << avgTime << "ms \n" <<  endl;
     }
 }
+
+/** @brief Runs distance computation on all given parameter sets */
 
 template<class ParamType, class Element, typename T>
 void runDistComp(T x1, T y1, T x2, T y2, map<int, ParamType> paramSets, string schemeName,
@@ -118,6 +127,9 @@ void runDistCompCKKS(complex<double> x1, complex<double> y1, complex<double> x2,
     }
 }
 
+/** Runs check on number of multiplications that can be performed for a single parameter set
+ *  before incorrect results are returned.
+ */
 template<class ParamType, class Element, typename T>
 void runMultCheck(T seed, ParamType value, ParamsRunner<Element, T> *paramsRunner) {
 
@@ -137,6 +149,9 @@ void runMultCheck(T seed, ParamType value, ParamsRunner<Element, T> *paramsRunne
     cout << "Total time taken: " << diff << "ms \n" <<  endl;
 }
 
+/** Runs check on number of multiplications that can be performed for all given parameter sets
+ *  before incorrect results are returned.
+ */
 template<class ParamType, class Element, typename T>
 void runMultCheck(T seed, map<int, ParamType> paramSets, string schemeName,
                   ParamsRunner<Element, T> *paramsRunner) {
@@ -190,19 +205,19 @@ int main() {
     complex<double> dsoYCoordDouble = 103.789;
 
     cout << "RUNNING DISTANCE COMPUTATION FOR ALL SCHEMES..." << endl;
-    runDistCompBGVrns(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord, false);
-    runDistCompBGV(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord, false);
+    //runDistCompBGVrns(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord, false);
+    //runDistCompBGV(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord, false);
     runDistCompCKKS(stadiumXCoordDouble, stadiumYCoordDouble, dsoXCoordDouble, dsoYCoordDouble, false);
 
     cout << "RUNNING DISTANCE COMPUTATION TIME CHECKS..." << endl;
     int sampleNum = 5; // number of times to run each parameter set
-    runDistCompBGVrns(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord, true, sampleNum);
-    runDistCompBGV(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord, true, sampleNum);
-    runDistCompCKKS(stadiumXCoordDouble, stadiumYCoordDouble, dsoXCoordDouble, dsoYCoordDouble, true, sampleNum);
+    //runDistCompBGVrns(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord, true, sampleNum);
+    //runDistCompBGV(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord, true, sampleNum);
+    //runDistCompCKKS(stadiumXCoordDouble, stadiumYCoordDouble, dsoXCoordDouble, dsoYCoordDouble, true, sampleNum);
 
     cout << "RUNNING MULTIPLY CHECK FOR BGVrns and BGV..." << endl;
-    runMultCheckBGVrns(1); // use 1 so that the result will always be less than the plaintext modulus
-    runMultCheckBGV(1);
+    //runMultCheckBGVrns(1); // use 1 so that the result will always be less than the plaintext modulus
+    //runMultCheckBGV(1);
     // there is currently no support for CKKS as there are approximation errors for this scheme
     // and there is no function to compare plaintext values
 

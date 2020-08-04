@@ -50,21 +50,28 @@ Ciphertext<Element> DistanceComputer<Element, T>::computeDistanceSquared(Ciphert
 
     cout << "Computing xDiff..." << endl;
     auto xDiff = cc->EvalSub(x1, x2);
+    // cout << "xDiff scale: " << CiphertextImpl<Element>(xDiff).GetScalingFactor() << endl;
+
     Plaintext xDiffDecrypt = decrypt(xDiff, cc, secretKey);
     cout << "Decrypted " << "xDiff: " << xDiffDecrypt << endl;
 
     cout << "Computing yDiff..." << endl;
     auto yDiff = cc->EvalSub(y1, y2);
+    // cout << "yDiff scale: " << CiphertextImpl<Element>(yDiff).GetScalingFactor() << endl;
+
     Plaintext yDiffDecrypt = decrypt(yDiff, cc, secretKey);
     cout << "Decrypted " << "yDiff: " << yDiffDecrypt << endl;
 
     cout << "Computing xDiffSq..." << endl;
     auto xDiffSq = cc->EvalMult(xDiff, xDiff);
+    // cout << "xDiffSq scale: " << CiphertextImpl<Element>(xDiffSq).GetScalingFactor() << endl;
+
     Plaintext xDiffSqDecrypt = decrypt(xDiffSq, cc, secretKey);
     cout << "Decrypted " << "xDiffSq: " << xDiffSqDecrypt << endl;
 
     cout << "Computing yDiffSq..." << endl;
     auto yDiffSq = cc->EvalMult(yDiff, yDiff);
+    // cout << "yDiffSq scale: " << CiphertextImpl<Element>(yDiffSq).GetScalingFactor() << endl;
     Plaintext yDiffSqDecrypt = decrypt(yDiffSq, cc, secretKey);
     cout << "Decrypted " << "yDiffSq: " << yDiffSqDecrypt << endl;
 

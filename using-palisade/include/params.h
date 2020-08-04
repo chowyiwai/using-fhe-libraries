@@ -24,24 +24,27 @@ class BGVrnsParam: Param<DCRTPoly> {
     public:
         static map<int, BGVrnsParam> ParamSets;
 
-        BGVrnsParam(PlaintextModulus p,  int64_t n, double sigma, SecurityLevel securityLevel, int multDepth)
-            : p(p), n(n), sigma(sigma), securityLevel(securityLevel), multDepth(multDepth) {}
+        BGVrnsParam(PlaintextModulus p,  int64_t n, int multDepth, SecurityLevel securityLevel = HEStd_128_classic,
+                    double sigma = 3.19, int maxDepth = 1, MODE mode = OPTIMIZED, KeySwitchTechnique ksTech = HYBRID)
+            : p(p), n(n), multDepth(multDepth), securityLevel(securityLevel), sigma(sigma), maxDepth(maxDepth), mode(mode), ksTech(ksTech) {}
 
         CryptoContext<DCRTPoly> generateCryptoContext() const {
-            CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBGVrns(multDepth, p, securityLevel, sigma, maxDepth, mode, ksTech, n);
+            CryptoContext<DCRTPoly> cc = CryptoContextFactory<DCRTPoly>::genCryptoContextBGVrns(multDepth, p, securityLevel,
+                                                                                                sigma, maxDepth, mode,
+                                                                                                ksTech, n);
             return cc;
         }
 
     private:
         PlaintextModulus p; // plaintext modulus
         int64_t n; // dimension
-        double sigma;
-        SecurityLevel securityLevel;
         int multDepth;
-        int maxDepth = 1; // maximum depth before relinearisation
-        MODE mode = RLWE;
-        KeySwitchTechnique ksTech = BV;
 
+        SecurityLevel securityLevel;
+        double sigma;
+        int maxDepth; // maximum depth before relinearisation
+        MODE mode;
+        KeySwitchTechnique ksTech;
 };
 
 /** Represents parameters for BGV scheme */
@@ -50,14 +53,8 @@ class BGVParam: Param<Poly> {
     public:
         static map<int, BGVParam> ParamSets;
 
-        BGVParam(PlaintextModulus p, int64_t m, int64_t numOfBits, int64_t relinWindow, float stdDev)
-            : p(p), m(m), numOfBits(numOfBits), relinWindow(relinWindow), stdDev(stdDev) {}
-
-        // overloaded constructor
-        BGVParam(PlaintextModulus p, int64_t m, int64_t relinWindow, float stdDev, BigInteger q)
-            : p(p), m(m), relinWindow(relinWindow), stdDev(stdDev), q(q) {
-                qSpecified = true;
-        }
+        BGVParam(PlaintextModulus p, int64_t m, int64_t numOfBits, int64_t relinWindow = 1, float stdDev = 4, MODE mode = RLWE)
+            : p(p), m(m), numOfBits(numOfBits), relinWindow(relinWindow), stdDev(stdDev), mode(mode) {}
 
         CryptoContext<Poly> generateCryptoContext() const {
             auto params = generateParams();
@@ -69,16 +66,12 @@ class BGVParam: Param<Poly> {
         PlaintextModulus p; // plaintext modulus
         int64_t m; // order; n = m / 2;
         int64_t numOfBits;
+
         int64_t relinWindow;
         float stdDev;
-        BigInteger q; // ciphertext modulus
-        bool qSpecified = false; // represents whether a value for q was passed in
-        MODE mode = RLWE;
+        MODE mode;
 
         shared_ptr<ILParams> generateParams() const {
-            if (qSpecified) {
-                return make_shared<ILParams>(m, q);
-            }
             return ElemParamFactory::GenElemParams<ILParams>(m, numOfBits);
         }
 };
@@ -89,35 +82,22 @@ class CKKSParam: Param<DCRTPoly> {
     public:
         static map<int, CKKSParam> ParamSets;
 
-        CKKSParam(int64_t m, int64_t numPrimes, int64_t scaleExp, int64_t relinWindow, int64_t batchSize)
-            : m(m), numPrimes(numPrimes), relinWindow(relinWindow), batchSize(batchSize), scaleExp(scaleExp) {}
-
-        // overloaded constructor
-        CKKSParam(int64_t multDepth, int64_t scaleFactorBits, int64_t batchSize, SecurityLevel securityLevel, int64_t n)
-            :  batchSize(batchSize), scaleExp(scaleFactorBits), multDepth(multDepth), securityLevel(securityLevel), n(n) {
-                securityLevelSpecified = true;
-        }
+        CKKSParam(int64_t multDepth, int64_t scaleFactorBits, int64_t n, SecurityLevel securityLevel = HEStd_128_classic, int batchSize = 8,
+                  RescalingTechnique rsTech = EXACTRESCALE)
+            :  multDepth(multDepth), scaleFactorBits(scaleFactorBits), n(n), securityLevel(securityLevel), batchSize(batchSize), rsTech(rsTech) {}
 
         CryptoContext<DCRTPoly> generateCryptoContext() const {
-            if (securityLevelSpecified) {
-                return CryptoContextFactory<DCRTPoly>::genCryptoContextCKKS(multDepth, scaleExp, batchSize, securityLevel, n, rsTech);
-            }
-            return GenCryptoContextCKKS<DCRTPoly>(m, numPrimes, scaleExp, relinWindow, batchSize, mode, ksTech, rsTech);
+            return CryptoContextFactory<DCRTPoly>::genCryptoContextCKKS(multDepth, scaleFactorBits, batchSize, securityLevel, n, rsTech);
         }
 
     private:
-        int64_t m; // cyclOrder
-        int64_t numPrimes; // number of primes that make up the ciphertext modulus and equal to multiplicative depth + 1
-        int64_t relinWindow;
-        int64_t batchSize;
-        int64_t scaleExp; // equal to `dcrtbits` (the number of bits of the ciphertext modulus) and equal to the plaintext modulus
-        MODE mode = RLWE;
-        KeySwitchTechnique ksTech = BV;
-        RescalingTechnique rsTech = APPROXRESCALE;
-
         int64_t multDepth;
-        SecurityLevel securityLevel;
-        bool securityLevelSpecified = false;
+        int64_t scaleFactorBits; // equal to `dcrtbits` (the number of bits of the ciphertext modulus) and equal to the plaintext modulus
         int64_t n; // dimension; if specified as 0, the library will choose it based on the security level
+
+        SecurityLevel securityLevel;
+        int64_t batchSize;
+        RescalingTechnique rsTech;
+
 };
 
