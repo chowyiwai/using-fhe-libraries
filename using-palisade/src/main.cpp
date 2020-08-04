@@ -206,8 +206,8 @@ int main() {
 
     cout << "RUNNING DISTANCE COMPUTATION FOR ALL SCHEMES..." << endl;
     //runDistCompBGVrns(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord, false);
-    //runDistCompBGV(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord, false);
-    runDistCompCKKS(stadiumXCoordDouble, stadiumYCoordDouble, dsoXCoordDouble, dsoYCoordDouble, false);
+    runDistCompBGV(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord, false);
+    //runDistCompCKKS(stadiumXCoordDouble, stadiumYCoordDouble, dsoXCoordDouble, dsoYCoordDouble, false);
 
     cout << "RUNNING DISTANCE COMPUTATION TIME CHECKS..." << endl;
     int sampleNum = 5; // number of times to run each parameter set
