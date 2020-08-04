@@ -6,7 +6,7 @@ using namespace lbcrypto;
 map<int, BGVrnsParam> BGVrnsParam::ParamSets = {
 
     // Parameters in square brackets are optional to provide
-    // BgvRnsParam(p, n, multDepth, [securityLevel], [sigma], [maxDepth], [mode], [ksTech])
+    // BGVrnsParam(p, n, multDepth, [securityLevel], [sigma], [maxDepth], [mode], [ksTech])
     {1, BGVrnsParam(PlaintextModulus(207748), 8192, 1)},
     {2, BGVrnsParam(PlaintextModulus(207748), 16384, 1)},
     {3, BGVrnsParam(PlaintextModulus(207748), 32768, 1)},
@@ -22,7 +22,7 @@ map<int, BGVrnsParam> BGVrnsParam::ParamSets = {
 
 map<int, BGVParam> BGVParam::ParamSets = {
 
-    // BgvParam(p, m, numOfBits, [relinWindow], [stdDev], [mode])
+    // BGVParam(p, m, numOfBits, [relinWindow], [stdDev], [mode])
     {1, BGVParam(PlaintextModulus(207749), 32, 60)},
     {2, BGVParam(PlaintextModulus(6558547), 32, 60)},
     {3, BGVParam(PlaintextModulus(207749), 64, 60)},
