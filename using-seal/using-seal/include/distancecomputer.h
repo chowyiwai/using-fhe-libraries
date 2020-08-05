@@ -56,6 +56,8 @@ Ciphertext DistanceComputer<T, EncoderType>::computeDistanceSquared(Ciphertext x
     Ciphertext xDiff;
     evaluator->sub(x1, x2, xDiff);
 
+    cout << "Scale: " << log2(xDiff.scale()) << " bits" << endl;
+    
     vector<double> xDiffVector = decrypt(xDiff);
     cout << "Decrypted xDiff:";
     print_vector(xDiffVector, 1, 9);
@@ -63,6 +65,8 @@ Ciphertext DistanceComputer<T, EncoderType>::computeDistanceSquared(Ciphertext x
     cout << "Computing yDiff..." << endl;
     Ciphertext yDiff;
     evaluator->sub(y1, y2, yDiff);
+
+    cout << "Scale: " << log2(yDiff.scale()) << " bits" << endl;
 
     vector<double> yDiffVector = decrypt(yDiff);
     cout << "Decrypted yDiff: ";
@@ -72,6 +76,8 @@ Ciphertext DistanceComputer<T, EncoderType>::computeDistanceSquared(Ciphertext x
     Ciphertext xDiffSq;
     evaluator->square(xDiff, xDiffSq);
 
+    cout << "Scale: " << log2(xDiffSq.scale()) << " bits" << endl;
+
     vector<double> xDiffSqVector = decrypt(xDiffSq);
     cout << "xDiffSq: ";
     print_vector(xDiffSqVector, 1, 9);
@@ -80,12 +86,16 @@ Ciphertext DistanceComputer<T, EncoderType>::computeDistanceSquared(Ciphertext x
     Ciphertext yDiffSq;
     evaluator->square(yDiff, yDiffSq);
 
+    cout << "Scale: " << log2(yDiffSq.scale()) << " bits" << endl;
+
     vector<double> yDiffSqVector = decrypt(yDiffSq);
     cout << "yDiffSq: ";
     print_vector(yDiffSqVector, 1, 9);
 
     Ciphertext distSq;
     evaluator->add(xDiffSq, yDiffSq, distSq);
+
+    cout << "Scale: " << log2(distSq.scale()) << " bits" << endl;
 
     return distSq;
 }

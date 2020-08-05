@@ -16,14 +16,14 @@ public:
     ParamsRunner() {};
     ~ParamsRunner() {};
 
-    void runDistComp(T x1, T y1, T x2, T y2, shared_ptr<SEALContext> context, T scale = 0);
+    void runDistComp(T x1, T y1, T x2, T y2, shared_ptr<SEALContext> context, T scale);
 
 protected:
     void print_all_parameters(shared_ptr<SEALContext> context);
     Plaintext encodePlaintext(vector<T> data, T scale, EncoderType* encoder);
     Ciphertext encryptPlaintext(Plaintext plaintext, Encryptor* encryptor);
     vector<T> decrypt(Ciphertext ciphertext, Decryptor* decryptor, EncoderType* encoder, string varName);
-    bool checkDecryption(vector<T> original, vector<T> decrypted, T epsilon = 0);
+    bool checkDecryption(vector<T> original, vector<T> decrypted, T epsilon = 0.000001);
 };
 
 #endif // PARAMSRUNNER_H
@@ -86,12 +86,8 @@ vector<T> ParamsRunner<T, EncoderType>::decrypt(Ciphertext ciphertext, Decryptor
 template <typename T, class EncoderType>
 bool ParamsRunner<T, EncoderType>::checkDecryption(vector<T> original, vector<T> decrypted, T epsilon) {
     // Compare only the first element
-    bool isEqual = abs(original[0] - decrypted[0]) < epsilon;
-    if (isEqual) {
-        cout << "original[0] = " << original[0] << endl;
-        cout << "decrypted[0] = " << decrypted[0] << endl;
-        bool same = original[0] == decrypted[0];
-        cout << "same: " << same << endl;
+    bool isEqual = (abs(original[0] - decrypted[0]) < epsilon);
+    if (!isEqual) {
         cout << "Failed" << endl;
         return false;
     }
@@ -113,6 +109,14 @@ void ParamsRunner<T, EncoderType>::runDistComp(T x1, T y1, T x2, T y2, shared_pt
     
     // Encode coordinates into plaintexts
     cout << "Encoding coordinates into plaintexts..." << endl;
+    auto context_data_ptr = context->get_context_data(context->first_parms_id());
+    auto& context_data = *context_data_ptr;
+    cout << "scale: " << static_cast<int>(log2(scale)) + 1 << endl;
+    cout << "total bit count: " << context_data.total_coeff_modulus_bit_count() << endl;
+    cout << "this: " << (static_cast<int>(log2(scale)) + 1 >= context_data.total_coeff_modulus_bit_count()) << endl;
+    if (scale <= 0 || (static_cast<int>(log2(scale)) + 1 >= context_data.total_coeff_modulus_bit_count())) {
+        cout << "here" << endl;
+    }
     EncoderType encoder(context);
     Plaintext x1Plaintext = encodePlaintext(x1Coord, scale, &encoder);
     Plaintext y1Plaintext = encodePlaintext(y1Coord, scale, &encoder);

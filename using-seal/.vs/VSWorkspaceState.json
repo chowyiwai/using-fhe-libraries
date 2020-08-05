@@ -5,6 +5,6 @@
     "\\using-seal\\include",
     "\\using-seal\\src"
   ],
-  "SelectedNode": "\\using-seal\\include\\params.h",
+  "SelectedNode": "\\using-seal\\src\\using-seal.cpp",
   "PreviewInSolutionExplorer": false
 }

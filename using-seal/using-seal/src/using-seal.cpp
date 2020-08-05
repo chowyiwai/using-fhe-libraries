@@ -15,7 +15,7 @@ void printHeader(string schemeName, string setNumber) {
     string border(title.length(), '-');
     cout << border << endl;
     cout << title << endl;
-    cout << border << "\n" << endl;
+    cout << border << endl;
 }
 
 steady_clock::time_point getCurrentTime() {
@@ -33,7 +33,7 @@ void runDistComp(T x1, T y1, T x2, T y2, ParamType value, ParamsRunner<T, Encode
 
     steady_clock::time_point finish = getCurrentTime();
     auto diff = duration_cast<milliseconds> (finish - start).count();
-    cout << "Total time taken: " << diff << "\n" << endl;
+    cout << "Total time taken: " << diff << "ms \n" << endl;
 }
 
 template <typename T, class EncoderType, class ParamType>
