@@ -24,10 +24,15 @@ double runDistComp(T x1, T y1, T x2, T y2, ParamType value,
 
     CKKSParamsRunner<Element>* ckksParamsRunner = dynamic_cast<CKKSParamsRunner<Element>*>(paramsRunner);
 
+    bool supportsComposedMult = false;
+    if (is_same<ParamType, BGVrnsParam>::value) {
+        supportsComposedMult = true; // only BGVrns supports ComposedEvalMult
+    }
+
     if (ckksParamsRunner != nullptr) {
-        ckksParamsRunner->runDistComp(x1, y1, x2, y2, cryptoContext);
+        ckksParamsRunner->runDistComp(x1, y1, x2, y2, cryptoContext, supportsComposedMult);
     } else {
-        paramsRunner->runDistComp(x1, y1, x2, y2, cryptoContext);
+        paramsRunner->runDistComp(x1, y1, x2, y2, cryptoContext, supportsComposedMult);
     }
 
     double finish = currentDateTime();
@@ -205,19 +210,19 @@ int main() {
     complex<double> dsoYCoordDouble = 103.789;
 
     cout << "RUNNING DISTANCE COMPUTATION FOR ALL SCHEMES..." << endl;
-    //runDistCompBGVrns(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord, false);
+    runDistCompBGVrns(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord, false);
     runDistCompBGV(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord, false);
-    //runDistCompCKKS(stadiumXCoordDouble, stadiumYCoordDouble, dsoXCoordDouble, dsoYCoordDouble, false);
+    runDistCompCKKS(stadiumXCoordDouble, stadiumYCoordDouble, dsoXCoordDouble, dsoYCoordDouble, false);
 
     cout << "RUNNING DISTANCE COMPUTATION TIME CHECKS..." << endl;
     int sampleNum = 5; // number of times to run each parameter set
-    //runDistCompBGVrns(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord, true, sampleNum);
-    //runDistCompBGV(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord, true, sampleNum);
-    //runDistCompCKKS(stadiumXCoordDouble, stadiumYCoordDouble, dsoXCoordDouble, dsoYCoordDouble, true, sampleNum);
+    runDistCompBGVrns(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord, true, sampleNum);
+    runDistCompBGV(stadiumXCoord, stadiumYCoord, dsoXCoord, dsoYCoord, true, sampleNum);
+    runDistCompCKKS(stadiumXCoordDouble, stadiumYCoordDouble, dsoXCoordDouble, dsoYCoordDouble, true, sampleNum);
 
     cout << "RUNNING MULTIPLY CHECK FOR BGVrns and BGV..." << endl;
-    //runMultCheckBGVrns(1); // use 1 so that the result will always be less than the plaintext modulus
-    //runMultCheckBGV(1);
+    runMultCheckBGVrns(1); // use 1 so that the result will always be less than the plaintext modulus
+    runMultCheckBGV(1);
     // there is currently no support for CKKS as there are approximation errors for this scheme
     // and there is no function to compare plaintext values
 

@@ -18,7 +18,7 @@ class ParamsRunner {
         ParamsRunner() {};
         ~ParamsRunner() {};
 
-        void runDistComp(T x1, T y1, T x2, T y2, CryptoContext<Element> cryptoContext);
+        void runDistComp(T x1, T y1, T x2, T y2, CryptoContext<Element> cryptoContext, bool supportsComposedMult);
         void runMultCheck(T x, CryptoContext<Element> cryptoContext);
 
     protected:
@@ -82,7 +82,7 @@ LPKeyPair<Element> ParamsRunner<Element, T>::generateKeys(CryptoContext<Element>
 }
 
 template<class Element, typename T>
-void ParamsRunner<Element, T>::runDistComp(T x1, T y1, T x2, T y2, CryptoContext<Element> cryptoContext) {
+void ParamsRunner<Element, T>::runDistComp(T x1, T y1, T x2, T y2, CryptoContext<Element> cryptoContext, bool supportsComposedMult) {
 
     printParameters(cryptoContext);
 
@@ -96,6 +96,7 @@ void ParamsRunner<Element, T>::runDistComp(T x1, T y1, T x2, T y2, CryptoContext
 
     // Enable encryption and SHE
     cryptoContext->Enable(ENCRYPTION);
+    cryptoContext->Enable(LEVELEDSHE);
     cryptoContext->Enable(SHE);
 
     // Encode coordinates into plaintexts
@@ -131,7 +132,7 @@ void ParamsRunner<Element, T>::runDistComp(T x1, T y1, T x2, T y2, CryptoContext
     // Homomorphically compute square of distance
     cout << "EvalMultKeyGen(secretKey)..." << endl;
     cryptoContext->EvalMultKeyGen(secretKey);
-    Ciphertext<Element> distanceCiphertext = distanceComputer.computeDistanceSquared(x1Ciphertext, y1Ciphertext, x2Ciphertext, y2Ciphertext, cryptoContext, secretKey);
+    Ciphertext<Element> distanceCiphertext = distanceComputer.computeDistanceSquared(x1Ciphertext, y1Ciphertext, x2Ciphertext, y2Ciphertext, cryptoContext, secretKey, supportsComposedMult);
     decryptAndCheck(distanceCiphertext, distSqPlaintext, secretKey, cryptoContext, "Distance Squared");
 }
 
@@ -146,6 +147,7 @@ void ParamsRunner<Element, T>::runMultCheck(T seed, CryptoContext<Element> crypt
     // Enable encryption and SHE
     cryptoContext->Enable(ENCRYPTION);
     cryptoContext->Enable(SHE);
+    cryptoContext->Enable(LEVELEDSHE);
 
     // Encode x into plaintext
     cout << "Encoding x into plaintext..." << endl;

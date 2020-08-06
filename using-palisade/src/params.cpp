@@ -17,7 +17,6 @@ map<int, BGVrnsParam> BGVrnsParam::ParamSets = {
     {8, BGVrnsParam(PlaintextModulus(536903681), 16384, 1)},
     {9, BGVrnsParam(PlaintextModulus(536903681), 32768, 1)},
     {10, BGVrnsParam(PlaintextModulus(536903681), 65536, 1)} // taken from palisade `depth-bgvrns.cpp`
-
 };
 
 map<int, BGVParam> BGVParam::ParamSets = {
@@ -53,11 +52,12 @@ map<int, BGVParam> BGVParam::ParamSets = {
     {28, BGVParam(PlaintextModulus(6558547), 65536, 80)},
     {27, BGVParam(PlaintextModulus(207749), 65536, 100)},
     {28, BGVParam(PlaintextModulus(6558547), 65536, 100)},
-    {29, BGVParam(PlaintextModulus(6558547), 32, 150)}
+    {29, BGVParam(PlaintextModulus(6558547), 32, 150)},
     {30, BGVParam(PlaintextModulus(6558547), 16384, 77)},
     {31, BGVParam(PlaintextModulus(6558547), 16384, 76)},
     {32, BGVParam(PlaintextModulus(6558547), 16384, 75)}
 };
+
 
 map<int, CKKSParam> CKKSParam::ParamSets = {
 
